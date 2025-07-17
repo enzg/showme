@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Context Engineering with Claude AI: Building a Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css" id="theme">
+    <!-- Code Highlighting with GitHub style -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <style>
+        /* Custom styles to mimic GitHub Light theme */
+        .reveal {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            font-size: 1.1em;
+            color: #24292e; /* GitHub text color */
+            background-color: #ffffff; /* White background */
+        }
+        .reveal h2 {
+            color: #0366d6; /* GitHub blue for headings */
+            text-transform: none;
+            margin-bottom: 0.5em;
+        }
+        .reveal p {
+            color: #24292e;
+            line-height: 1.5;
+        }
+        .reveal section {
+            text-align: left;
+            padding: 20px;
+            overflow-y: auto; /* Enable vertical scrolling for long sections */
+            max-height: 100vh; /* Limit height to viewport */
+        }
+        .reveal pre {
+            background-color: #f6f8fa; /* GitHub code bg */
+            border: 16px solid #f6f8fa;
+            border-radius: 6px;
+            padding: 16px;
+            overflow: auto;
+            box-shadow: none;
+            max-height: 60vh; /* Limit code block height to allow scrolling */
+        }
+        .reveal code {
+            font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.875em;
+        }
+        .reveal ul, .reveal ol {
+            margin-left: 20px;
+            color: #24292e;
+        }
+        .reveal a {
+            color: #0366d6;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <section>
+                <h2>演讲稿：通过Context Engineering指导Claude AI构建计算器的艺术之旅</h2>
+                <p>女士们、先生们，大家好！</p>
+                <p>今天，我很荣幸能与大家分享一个革新性的演示：如何运用Context Engineering——一种超越传统提示工程的强大方法——来指导Claude AI一步步实现一个功能完整的计算器。这个过程灵感来源于一个优秀的GitHub仓库，它将Context Engineering定义为AI编码助手提供全面上下文的系统，包括文档、例子、规则、模式和验证，从而让AI真正高效地完成端到端任务。我们将从仓库的核心概念出发，逐步构建演示，确保每一步都体现Context Engineering的精髓。最后，你们可以直接复制这些结构化的指令和文件内容，与你们的Claude AI交互，一步步构建出自己的计算器。</p>
+                <p>为什么选择Context Engineering？正如仓库所述，它不是简单的“提示工程”（prompt engineering），那就像给AI一张便条纸；Context Engineering更像是编写一部完整的剧本，提供所有细节，让AI避免常见失败。仓库强调，这能处理复杂任务，如多步骤代码生成，并通过验证循环实现自我修正。我们将应用仓库的模板结构、INITIAL.md文件编写指南、PRP（Product Requirements Prompt）工作流，以及有效使用例子的技巧，来构建我们的计算器。</p>
+                <p>让我们开始这个旅程！我们假设你有一个Claude AI环境（比如Claude Code），并使用仓库建议的文件夹结构：包括CLAUDE.md（全局规则）、INITIAL.md（功能请求）、examples/（代码模式示例）、PRPs/（生成的PRP文件）。演示的核心是只提供*.md文件，Claude完成全部代码生成。</p>
+            </section>
+
+            <section data-auto-animate>
+                <h2>第一部分：理解Context Engineering的基础——设置上下文框架</h2>
+                <p>首先，思考过程至关重要：不要直接扔一个模糊提示给Claude，比如“建一个计算器”。相反，按照仓库的指导，建立全面上下文。这包括全局规则和初始功能描述。</p>
+                <p>仓库建议的目录结构：</p>
+                <pre><code class="language-bash" data-trim data-line-numbers>
+context-engineering-intro/
+├── .claude/
+│   ├── commands/
+│   │   ├── generate-prp.md
+│   │   └── execute-prp.md
+│   └── settings.local.json
+├── PRPs/
+│   ├── templates/
+│   │   └── prp_base.md
+│   └── EXAMPLE_multi_agent_prp.md
+├── examples/
+├── CLAUDE.md
+├── INITIAL.md
+├── INITIAL_EXAMPLE.md
+└── README.md
+                </code></pre>
+            </section>
+
+            <section data-auto-animate>
+                <h2>第一部分：理解Context Engineering的基础——设置上下文框架</h2>
+                <p>创建目录结构的步骤（无需手动写代码）：</p>
+                <ol>
+                    <li>克隆仓库：git clone https://github.com/coleam00/context-engineering-intro.git & cd context-engineering-intro</li>
+                    <li>使用仓库自带的examples/（如cli.py、tests/）作为起点。</li>
+                    <li>为计算器特定例子，创建一个INITIAL_examples.md，让Claude生成examples/文件，确保演示只用.md驱动一切。</li>
+                </ol>
+                <p>INITIAL_examples.md 示例：</p>
+                <pre><code class="language-markdown" data-trim data-line-numbers>
+# Initial Feature Request: Generate Example Patterns for Calculator
+
+## FEATURE
+Create example code patterns in the examples/ folder to reference in future requests. Include:
+- cli_patterns/cli_basic_input.py: A simple CLI input loop with error handling.
+- error_handling/div_zero.py: Safe division function handling zero errors.
+- gui_patterns/tkinter_basic.py: Basic Tkinter button layout example.
+
+## EXAMPLES
+Reference warehouse's cli.py for CLI structure.
+Reference warehouse's tests/ for error handling patterns.
+
+## DOCUMENTATION
+- Python input(): https://docs.python.org/3/library/functions.html#input
+- Tkinter basics: https://docs.python.org/3/library/tkinter.html
+- Follow PEP8.
+
+## OTHER CONSIDERATIONS
+- Keep examples short (&lt;50 lines), modular, with comments.
+- Success criteria: Files created in examples/, testable without errors.
+                </code></pre>
+            </section>
+
+            <section data-auto-animate>
+                <h2>第一部分：理解Context Engineering的基础——设置上下文框架</h2>
+                <p>指令给Claude生成examples/：“加载CLAUDE.md和INITIAL_examples.md。使用/generate-prp生成PRP，然后/execute-prp执行，生成examples/文件。”</p>
+                <p>Claude会输出.py文件代码，你复制到examples/中——无需手动编写，保持“零代码输入”。</p>
+            </section>
+
+            <section data-auto-animate>
+                <h2>第一部分：理解Context Engineering的基础——设置上下文框架</h2>
+                <p>创建并上传一个<strong>CLAUDE.md</strong>文件，作为全局规则。这定义了项目认知、代码结构、测试风格等。基于仓库的模板，你的CLAUDE.md可以是：</p>
+                <pre><code class="language-markdown" data-trim data-line-numbers>
+# Global Rules for Claude AI
+
+## Project Awareness
+- You are assisting in building a Python-based calculator application.
+- Always adhere to Python best practices: PEP8 style, modular code, error handling.
+
+## Code Structure
+- Use functions for operations (add, subtract, etc.).
+- Organize into modules: e.g., core.py for logic, ui.py for interface.
+- Imports at top, no global variables unless necessary.
+
+## Testing
+- Write unit tests using pytest.
+- Cover edge cases: division by zero, invalid inputs.
+
+## Style and Documentation
+- Use type hints.
+- Add docstrings to functions.
+- Commit messages: "feat: add basic arithmetic" or "fix: handle invalid ops".
+
+## Validation
+- After implementation, run tests and validate against success criteria.
+                </code></pre>
+                <p>指令给Claude：“加载CLAUDE.md作为全局上下文规则。现在，我们将使用Context Engineering构建一个计算器。”</p>
+                <p>思考：这个文件提供持久上下文，确保Claude在所有交互中一致。仓库指出，这比零散提示强100倍。</p>
+            </section>
+
+            <section data-auto-animate>
+                <h2>第二部分：编写有效的INITIAL.md——定义功能请求</h2>
+                <p>接下来，按照仓库的INITIAL.md编写指南，创建详细的功能描述文件。关键部分：FEATURE（具体描述）、EXAMPLES（引用例子）、DOCUMENTATION（相关资源）、OTHER CONSIDERATIONS（额外细节）。这不是简短提示，而是全面蓝图。参考INITIAL_EXAMPLE.md作为指导。</p>
+                <p>现在examples/已由Claude生成，可引用它们。</p>
+            </section>
+
+            <section data-auto-animate>
+                <h2>第二部分：编写有效的INITIAL.md——定义功能请求</h2>
+                <p>你的<strong>INITIAL.md</strong>可以是：</p>
+                <pre><code class="language-markdown" data-trim data-line-numbers>
+# Initial Feature Request: Build a Basic Command-Line Calculator
+
+## FEATURE
+Develop a simple command-line calculator in Python that supports addition (+), subtraction (-), multiplication (*), and division (/). 
+- User inputs: two numbers and an operator.
+- Handle errors: invalid operators, non-numeric inputs, division by zero.
+- Loop for multiple calculations until user quits with 'q'.
+- Output results clearly, e.g., "3 + 4 = 7".
+
+## EXAMPLES
+Reference examples/cli_patterns/cli_basic_input.py for input loop patterns.
+Reference examples/error_handling/div_zero.py for division error handling.
+
+## DOCUMENTATION
+- Use Python's built-in input() and float() for parsing.
+- Follow PEP8: https://peps.python.org/pep-0008/
+- For testing, use pytest: https://docs.pytest.org/en/stable/
+
+## OTHER CONSIDERATIONS
+- Make it user-friendly: add a help menu with 'h'.
+- Ensure code is modular for future GUI extension.
+- Success criteria: Passes tests for all operations and errors.
+                </code></pre>
+            </section>
+
+            <section data-auto-animate>
+                <h2>第二部分：编写有效的INITIAL.md——定义功能请求</h2>
+                <p>指令给Claude：“加载INITIAL.md。使用/generate-prp命令生成一个PRP文件，基于CLAUDE.md和INITIAL.md，研究代码库模式，创建步步实施计划，包括验证关卡和置信度评分（1-10）。”</p>
+                <p>Claude会生成一个<strong>PRPs/calculator_prp.md</strong>，类似于仓库的EXAMPLE_multi_agent_prp.md，包括：</p>
+                <ul>
+                    <li>研究总结：代码模式、文档。</li>
+                    <li>实施步骤：1. 构建核心函数；2. 添加输入循环；3. 错误处理；4. 测试。</li>
+                    <li>验证：运行测试，确保无bug。</li>
+                    <li>置信度：9/10（如果上下文充分）。</li>
+                </ul>
+                <p>思考：仓库强调，INITIAL.md要明确、引用例子。这让Claude能生成高质量PRP，避免AI“幻觉”或偏离轨道。</p>
+            </section>
+
+            <section data-auto-animate>
+                <h2>第三部分：执行PRP工作流——从命令行到GUI的迭代构建</h2>
+                <p>现在，进入仓库的核心：PRP工作流。使用/execute-prp来实施。</p>
+                <p>指令给Claude：“加载PRPs/calculator_prp.md。使用/execute-prp命令：加载上下文，规划任务，执行步骤，运行测试，修复问题，确保所有成功标准满足。”</p>
+            </section>
+
+            <section data-auto-animate>
+                <h2>第三部分：执行PRP工作流——从命令行到GUI的迭代构建</h2>
+                <p>Claude的响应会逐步：</p>
+                <ol>
+                    <li>规划：分解为任务，如写core.py。</li>
+                    <li>执行：生成代码，例如：</li>
+                </ol>
+                <pre><code class="language-python" data-trim data-line-numbers>
+# core.py
+def add(a: float, b: float) -> float:
+    """Add two numbers."""
+    return a + b
+
+# Similar for subtract, multiply, divide (with zero check).
+
+# main.py
+import core
+
+while True:
+    try:
+        num1 = float(input("First number: "))
+        op = input("Operator (+,-,*,/): ")
+        num2 = float(input("Second number: "))
+        if op == '+': print(core.add(num1, num2))
+        # Etc.
+    except ValueError:
+        print("Invalid input.")
+    if input("Quit? (q): ") == 'q': break
+                </code></pre>
+            </section>
+
+            <section data-auto-animate>
+                <h2>第三部分：执行PRP工作流——从命令行到GUI的迭代构建</h2>
+                <ol start="3">
+                    <li>验证：模拟运行测试，如pytest测试文件。</li>
+                    <li>迭代：如果bug，修复。</li>
+                </ol>
+                <p>思考：仓库的PRP包括验证关卡，这像自纠错循环。对于计算器，我们从命令行开始，然后迭代到GUI。</p>
+            </section>
+
+            <section data-auto-animate>
+                <h2>第三部分：执行PRP工作流——从命令行到GUI的迭代构建</h2>
+                <p>要升级到GUI，创建新INITIAL.md：</p>
+                <pre><code class="language-markdown" data-trim data-line-numbers>
+# Initial Feature Request: Upgrade to GUI Calculator
+
+## FEATURE
+Convert the command-line calculator to a Tkinter GUI version with buttons for digits 0-9, operators, equals, and clear. Display input and results on a screen.
+
+## EXAMPLES
+Reference examples/gui_patterns/tkinter_basic.py for button layout.
+
+## DOCUMENTATION
+- Tkinter docs: https://docs.python.org/3/library/tkinter.html
+
+## OTHER CONSIDERATIONS
+- Avoid eval() for security; parse expressions manually.
+- Add history display.
+                </code></pre>
+                <p>然后重复：生成PRP，执行。Claude会生成GUI代码，如使用Tkinter的按钮网格。</p>
+            </section>
+
+            <section>
+                <h2>第四部分：最佳实践与调试——应用仓库的智慧</h2>
+                <p>在整个过程中，应用仓库的最佳实践：</p>
+                <ul>
+                    <li>引用例子文件夹：由Claude生成的examples/，包含错误处理、测试模式的代码片段。</li>
+                    <li>明确性：INITIAL.md中捕获所有细节，如率限（虽不适用计算器，但类比）。</li>
+                    <li>验证循环：总是结束于测试和修复。</li>
+                </ul>
+                <p>如果调试，指令：“基于PRP，识别并修复division by zero bug。”</p>
+                <p>思考：仓库指出，例子是关键——提供“做什么”和“不要做什么”，覆盖结构、测试等。这确保Claude构建一致的计算器，而用户只提供.md。</p>
+            </section>
+
+            <section>
+                <h2>第五部分：结语——Context Engineering的变革力量</h2>
+                <p>女士们、先生们，这就是Context Engineering在行动！从全局规则到INITIAL.md、PRP生成和执行，我们构建了一个从命令行到GUI的计算器，而非依赖运气或简单提示。正如仓库所述，这方法让AI编码助手真正“工作”。现在，你们可以复制这些文件和指令，与Claude交互。记住：上下文是王道，你的结构化思考驱动一切，且整个演示只通过.md文件实现零代码输入。</p>
+                <p>谢谢大家！有问题吗？</p>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        Reveal.initialize({
+            controls: true,
+            progress: true,
+            center: true,
+            slideNumber: true,
+            hash: true,
+            autoAnimate: true,  // Enable auto-animate for smoother transitions
+            plugins: []  // Highlight is initialized below
+        });
+        hljs.highlightAll();
+    </script>
+</body>
+</html>
